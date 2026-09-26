@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ellie — Your AI Call Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,400&family=Fragment+Mono&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   ELLIE — AI call assistant · warm editorial consumer product
+   ============================================================ */
+:root{
+  --font-body:'DM Sans',system-ui,sans-serif;
+  --font-display:'Instrument Serif',Georgia,serif;
+  --font-mono:'Fragment Mono','SF Mono',Consolas,monospace;
+
+  --bg:#f6f2ea;
+  --surface:#fffdf8;
+  --surface-2:#f0ebdf;
+  --surface-sunk:#ece6d7;
+  --border:rgba(62,50,28,.13);
+  --border-bright:rgba(62,50,28,.26);
+  --text:#26221a;
+  --text-dim:#7d7461;
+  --text-faint:#a89e88;
+
+  --blue:#1e3a5f;          /* primary */
+  --blue-dim:rgba(30,58,95,.09);
+  --blue-soft:rgba(30,58,95,.16);
+  --gold:#a97f22;
+  --gold-dim:rgba(169,127,34,.12);
+
+  --c-urgent:#b3261e;   --c-urgent-dim:rgba(179,38,30,.10);
+  --c-personal:#c2410c; --c-personal-dim:rgba(194,65,12,.10);
+  --c-work:#1e4e79;     --c-work-dim:rgba(30,78,121,.10);
+  --c-delivery:#0f766e; --c-delivery-dim:rgba(15,118,110,.10);
+  --c-appt:#92600f;     --c-appt-dim:rgba(146,96,15,.11);
+  --c-sales:#7c5d13;    --c-sales-dim:rgba(124,93,19,.11);
+  --c-spam:#6b6557;     --c-spam-dim:rgba(107,101,87,.12);
+  --c-unknown:#8b8371;  --c-unknown-dim:rgba(139,131,113,.13);
+
+  --p-high:#b3261e;  --p-high-dim:rgba(179,38,30,.10);
+  --p-med:#92600f;   --p-med-dim:rgba(146,96,15,.12);
+  --p-low:#6b6557;   --p-low-dim:rgba(107,101,87,.12);
+
+  --green:#2f6b3c;   --green-dim:rgba(47,107,60,.10);
+  --red:#b3261e;
+
+  --shadow-1:0 1px 2px rgba(50,40,20,.05),0 2px 10px rgba(50,40,20,.06);
+  --shadow-2:0 4px 22px rgba(50,40,20,.10),0 1px 3px rgba(50,40,20,.05);
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#16130e;
+    --surface:#1f1b14;
+    --surface-2:#272216;
+    --surface-sunk:#131009;
+    --border:rgba(245,235,210,.10);
+    --border-bright:rgba(245,235,210,.22);
+    --text:#ece5d3;
+    --text-dim:#a89d84;
+    --text-faint:#7c7460;
+
+    --blue:#8fb3d9;
+    --blue-dim:rgba(143,179,217,.10);
+    --blue-soft:rgba(143,179,217,.16);
+    --gold:#d2a94f;
+    --gold-dim:rgba(210,169,79,.13);
+
+    --c-urgent:#e2726b;  --c-urgent-dim:rgba(226,114,107,.13);
+    --c-personal:#e08b5c;--c-personal-dim:rgba(224,139,92,.13);
+    --c-work:#7fa8cf;    --c-work-dim:rgba(127,168,207,.13);
+    --c-delivery:#5cb8ad;--c-delivery-dim:rgba(92,184,173,.12);
+    --c-appt:#d0a23e;    --c-appt-dim:rgba(208,162,62,.13);
+    --c-sales:#c2a45c;    --c-sales-dim:rgba(194,164,92,.13);
+    --c-spam:#98917e;    --c-spam-dim:rgba(152,145,126,.14);
+    --c-unknown:#8f8875; --c-unknown-dim:rgba(143,136,117,.16);
+
+    --p-high:#e2726b; --p-high-dim:rgba(226,114,107,.13);
+    --p-med:#d0a23e;  --p-med-dim:rgba(208,162,62,.13);
+    --p-low:#98917e;  --p-low-dim:rgba(152,145,126,.14);
+
+    --green:#77b382; --green-dim:rgba(119,179,130,.12);
+    --red:#e2726b;
+    --shadow-1:0 1px 2px rgba(0,0,0,.25),0 2px 10px rgba(0,0,0,.3);
+    --shadow-2:0 6px 26px rgba(0,0,0,.45),0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  background-image:radial-gradient(ellipse 90% 55% at 50% -10%,var(--gold-dim) 0%,transparent 62%);
+  color:var(--text);
+  font-size:15px;line-height:1.55;
+  overflow-wrap:break-word;
+  min-height:100vh;
+}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+a{color:var(--blue)}
+
+/* ---------- app shell ---------- */
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh;max-width:1340px;margin:0 auto}
+.app>*{min-width:0}
+
+.sidebar{
+  border-right:1px solid var(--border);
+  padding:26px 18px 20px;
+  display:flex;flex-direction:column;gap:26px;
+  position:sticky;top:0;height:100vh;
+}
+.brand{display:flex;align-items:center;gap:11px;padding:0 6px}
+.brand__mark{
+  width:40px;height:40px;border-radius:13px;
+  background:var(--blue);color:var(--bg);
+  display:grid;place-items:center;flex-shrink:0;
+  font-family:var(--font-display);font-size:24px;line-height:1;padding-top:3px;
+}
+.brand__name{font-family:var(--font-display);font-size:27px;line-height:1;color:var(--text)}
+.brand__sub{font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--text-dim);margin-top:3px}
+
+.nav{display:flex;flex-direction:column;gap:3px}
+.nav__label{font-family:var(--font-mono);font-size:9.5px;letter-spacing:1.8px;text-transform:uppercase;color:var(--text-faint);padding:0 12px;margin-bottom:8px}
+.nav button{
+  display:flex;align-items:center;gap:11px;width:100%;
+  background:none;border:none;text-align:left;
+  padding:9px 12px;border-radius:9px;
+  font-size:14px;font-weight:500;color:var(--text-dim);
+  transition:background .15s ease,color .15s ease;
+}
+.nav button svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.nav button:hover{background:var(--surface-2);color:var(--text)}
+.nav button.active{background:var(--blue-dim);color:var(--blue);font-weight:600}
+.nav__dot{margin-left:auto;width:7px;height:7px;border-radius:50%;background:var(--c-urgent);display:none}
+.nav button[data-badge="1"] .nav__dot{display:block}
+
+.sidebar__foot{margin-top:auto;display:flex;flex-direction:column;gap:12px}
+.status-pill{
+  display:flex;align-items:center;gap:9px;
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.4px;
+  background:var(--green-dim);color:var(--green);
+  border:1px solid color-mix(in srgb,var(--green) 30%,transparent);
+  border-radius:999px;padding:7px 12px;
+}
+.status-pill i{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.owner{display:flex;align-items:center;gap:10px;padding:10px 8px 0;border-top:1px solid var(--border)}
+.owner__av{width:34px;height:34px;border-radius:50%;background:var(--gold-dim);color:var(--gold);display:grid;place-items:center;font-weight:700;font-size:13px;flex-shrink:0}
+.owner__name{font-size:13.5px;font-weight:600}
+.owner__meta{font-size:11px;color:var(--text-dim)}
+
+.main{padding:34px 38px 70px;min-width:0}
+
+/* ---------- generic ---------- */
+.view{display:none;animation:fadeUp .35s ease-out both}
+.view.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeScale{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+
+.section-label{
+  font-family:var(--font-mono);font-size:10.5px;font-weight:400;
+  letter-spacing:1.8px;text-transform:uppercase;color:var(--text-dim);
+  display:flex;align-items:center;gap:9px;margin-bottom:14px;
+}
+.section-label::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--gold)}
+
+.ve-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:18px 20px;position:relative;
+}
+.ve-card--elevated{box-shadow:var(--shadow-1);background:var(--surface)}
+.ve-card--hero{
+  background:color-mix(in srgb,var(--surface) 90%,var(--blue) 10%);
+  border-color:color-mix(in srgb,var(--border) 45%,var(--blue) 35%);
+  box-shadow:var(--shadow-2);
+}
+.ve-card--recessed{background:var(--surface-2);box-shadow:inset 0 1px 3px rgba(0,0,0,.05)}
+
+.badge{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.3px;
+  padding:3px 9px;border-radius:6px;white-space:nowrap;display:inline-block;
+}
+.prio{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.3px;
+  padding:3px 9px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;
+}
+.prio::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.handled{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.3px;
+  padding:3px 9px;border-radius:6px;white-space:nowrap;display:inline-block;
+  border:1px solid var(--border);color:var(--text-dim);background:var(--surface-2);
+}
+
+.btn{
+  border:1px solid var(--border-bright);background:var(--surface);
+  color:var(--text);border-radius:10px;padding:9px 16px;font-size:13.5px;font-weight:600;
+  transition:transform .15s ease,box-shadow .15s ease,background .15s ease;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-1)}
+.btn--primary{background:var(--blue);color:#f6f2ea;border-color:var(--blue)}
+@media (prefers-color-scheme: dark){.btn--primary{color:#10131a}}
+.btn--danger{background:var(--c-urgent);border-color:var(--c-urgent);color:#fff}
+.btn--ghost{background:transparent}
+.btn--sm{padding:6px 12px;font-size:12.5px;border-radius:8px}
+
+/* ---------- overview ---------- */
+.greet-row{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:8px}
+.greet-date{font-family:var(--font-mono);font-size:11.5px;color:var(--text-dim);letter-spacing:.5px}
+h1.greet{font-family:var(--font-display);font-weight:400;font-size:clamp(34px,4vw,46px);line-height:1.08;letter-spacing:-.5px}
+h1.greet em{font-style:italic;color:var(--blue)}
+
+.hero{
+  margin:22px 0 24px;padding:30px 32px;
+  display:grid;grid-template-columns:1.4fr 1fr;gap:36px;align-items:center;
+  animation:fadeScale .4s ease-out both;
+}
+.hero__principle{font-family:var(--font-display);font-size:clamp(22px,2.2vw,30px);line-height:1.3}
+.hero__principle em{font-style:italic;color:var(--gold)}
+.hero__note{margin-top:14px;font-size:13.5px;color:var(--text-dim);max-width:52ch}
+.hero__metric{text-align:right;border-left:1px solid var(--border-bright);padding-left:36px}
+.hero__metric .num{font-size:64px;font-weight:700;letter-spacing:-2.5px;line-height:1;font-variant-numeric:tabular-nums}
+.hero__metric .num span{font-size:26px;letter-spacing:-1px;color:var(--text-dim)}
+.hero__metric .lbl{font-family:var(--font-mono);font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--text-dim);margin-top:8px}
+
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:28px}
+.kpi{animation:fadeScale .4s ease-out both;animation-delay:calc(var(--i,0)*.06s)}
+.kpi__value{font-size:34px;font-weight:700;letter-spacing:-1.2px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi__value small{font-size:16px;color:var(--text-dim);font-weight:500}
+.kpi__label{font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);margin-top:6px}
+.kpi__trend{font-family:var(--font-mono);font-size:11px;margin-top:5px;color:var(--green)}
+
+.ov-grid{display:grid;grid-template-columns:1.55fr 1fr;gap:22px;align-items:start}
+.ov-col{display:flex;flex-direction:column;gap:24px;min-width:0}
+
+/* notification cards */
+.note-card{
+  border:1px solid color-mix(in srgb,var(--c-urgent) 35%,var(--border));
+  border-left:4px solid var(--c-urgent);
+  background:color-mix(in srgb,var(--surface) 88%,var(--c-urgent) 12%);
+  border-radius:12px;padding:16px 18px;
+  animation:fadeUp .35s ease-out both;
+}
+.note-card__top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.note-card__title{font-weight:700;font-size:14.5px}
+.note-card__body{font-size:13.5px;line-height:1.6;color:var(--text)}
+.note-card__body b{font-weight:650}
+.note-card__actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.note-empty{border:1px dashed var(--border-bright);border-radius:12px;padding:26px;text-align:center;color:var(--text-dim);font-size:13.5px}
+
+/* call rows */
+.call-list{display:flex;flex-direction:column}
+.call-row{
+  display:grid;grid-template-columns:42px 1fr auto;gap:14px;align-items:center;
+  padding:13px 6px;border-bottom:1px solid var(--border);cursor:pointer;
+  transition:background .15s ease;border-radius:8px;
+}
+.call-row:last-child{border-bottom:none}
+.call-row:hover{background:var(--surface-2)}
+.call-row.is-new{animation:fadeUp .5s ease-out both;background:var(--gold-dim)}
+.av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
+.call-row__main{min-width:0}
+.call-row__name{font-weight:650;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.call-row__org{color:var(--text-dim);font-weight:400;font-size:12.5px}
+.call-row__line{font-size:12.5px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.call-row__meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.call-row__time{font-family:var(--font-mono);font-size:10.5px;color:var(--text-faint)}
+.call-row__tags{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+
+.spark-card svg{width:100%;height:74px;display:block}
+.spark-days{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:9.5px;color:var(--text-faint);margin-top:6px;letter-spacing:.5px}
+
+/* ---------- call log ---------- */
+.log-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.log-head h2{font-family:var(--font-display);font-weight:400;font-size:30px}
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.fchip{
+  font-family:var(--font-mono);font-size:11px;padding:5px 12px;border-radius:999px;
+  border:1px solid var(--border);background:var(--surface);color:var(--text-dim);
+  transition:all .15s ease;
+}
+.fchip:hover{border-color:var(--border-bright);color:var(--text)}
+.fchip.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+
+/* ---------- modal ---------- */
+.modal-back{
+  position:fixed;inset:0;background:rgba(24,18,8,.5);backdrop-filter:blur(3px);
+  display:none;align-items:flex-start;justify-content:center;z-index:60;padding:4vh 16px;overflow-y:auto;
+}
+.modal-back.open{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border-bright);border-radius:18px;
+  width:min(880px,100%);box-shadow:var(--shadow-2);
+  animation:fadeUp .3s ease-out both;
+}
+.modal__head{display:flex;align-items:flex-start;gap:16px;padding:24px 26px 18px;border-bottom:1px solid var(--border)}
+.modal__head .av{width:52px;height:52px;font-size:17px}
+.modal__title{font-size:19px;font-weight:700}
+.modal__sub{color:var(--text-dim);font-size:13px;margin-top:2px}
+.modal__tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.modal__close{margin-left:auto;background:none;border:1px solid var(--border);border-radius:9px;width:34px;height:34px;font-size:16px;color:var(--text-dim);flex-shrink:0}
+.modal__body{padding:22px 26px 26px;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.sum-grid{display:flex;flex-direction:column;gap:0;min-width:0}
+.sum-row{padding:10px 0;border-bottom:1px solid var(--border);display:grid;grid-template-columns:120px 1fr;gap:12px;font-size:13px}
+.sum-row:last-child{border-bottom:none}
+.sum-row dt{font-family:var(--font-mono);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-dim);padding-top:2px}
+.sum-row dd{min-width:0}
+.sum-row dd ul{list-style:none}
+.sum-row dd li{padding-left:15px;position:relative;margin:3px 0}
+.sum-row dd li::before{content:'›';position:absolute;left:0;color:var(--gold);font-weight:600}
+.sum-row dd li.done{text-decoration:line-through;color:var(--text-faint)}
+.transcript{
+  background:var(--surface-sunk);border:1px solid var(--border);border-radius:12px;
+  padding:18px 16px;display:flex;flex-direction:column;gap:13px;max-height:430px;overflow-y:auto;
+}
+.t-line{display:grid;grid-template-columns:56px 1fr;gap:10px;font-size:12.5px;line-height:1.55}
+.t-who{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.8px;text-transform:uppercase;padding-top:2px}
+.t-line.caller .t-who{color:var(--c-personal)}
+.t-line.ellie .t-who{color:var(--blue)}
+.t-line.sys .t-who{color:var(--text-faint)}
+.t-line .t-text{color:var(--text)}
+.t-line.sys .t-text{color:var(--text-dim);font-style:italic}
+.modal__foot{display:flex;gap:10px;padding:0 26px 24px;flex-wrap:wrap}
+
+/* ---------- live call ---------- */
+.live-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;align-items:start}
+.phone-card{overflow:hidden;display:flex;flex-direction:column;min-height:560px}
+.phone-head{
+  padding:18px 22px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:13px;background:var(--surface);
+}
+.phone-head .av{width:44px;height:44px}
+.phone-head__name{font-weight:700;font-size:15px}
+.phone-head__num{font-family:var(--font-mono);font-size:11px;color:var(--text-dim)}
+.phone-head__timer{margin-left:auto;font-family:var(--font-mono);font-size:12px;color:var(--green)}
+.phone-head__end{background:var(--c-urgent);color:#fff;border:none;border-radius:999px;padding:7px 16px;font-size:12px;font-weight:700}
+.chat{flex:1;padding:20px 18px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;max-height:470px;background:var(--surface-sunk)}
+.chat__day{align-self:center;font-family:var(--font-mono);font-size:10px;color:var(--text-faint);letter-spacing:1px;text-transform:uppercase}
+.msg{max-width:82%;padding:10px 14px;border-radius:15px;font-size:13.5px;line-height:1.55;animation:fadeUp .3s ease-out both}
+.msg--ellie{
+  align-self:flex-start;background:var(--surface);border:1px solid var(--border);
+  border-bottom-left-radius:5px;box-shadow:var(--shadow-1);
+}
+.msg--caller{
+  align-self:flex-end;background:var(--blue);color:#f6f2ea;border-bottom-right-radius:5px;
+}
+@media (prefers-color-scheme: dark){.msg--caller{color:#10131a}}
+.msg--ellie .msg__who{font-family:var(--font-mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:3px}
+.msg--sys{
+  align-self:center;background:var(--gold-dim);color:var(--gold);border-radius:9px;
+  font-family:var(--font-mono);font-size:10.5px;padding:6px 13px;letter-spacing:.3px;text-align:center;
+}
+.typing{align-self:flex-start;display:flex;gap:5px;padding:13px 16px;background:var(--surface);border:1px solid var(--border);border-radius:15px;border-bottom-left-radius:5px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}
+.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+
+.chat-input{display:flex;gap:8px;padding:14px 16px;border-top:1px solid var(--border);background:var(--surface);flex-wrap:wrap}
+.chat-input input{
+  flex:1;min-width:150px;border:1px solid var(--border-bright);background:var(--surface-2);
+  border-radius:999px;padding:10px 18px;font-size:13.5px;color:var(--text);outline:none;
+}
+.chat-input input:focus{border-color:var(--blue)}
+.chips-row{display:flex;gap:7px;padding:0 16px 14px;flex-wrap:wrap;background:var(--surface)}
+.schip{
+  font-size:12.5px;padding:7px 13px;border-radius:999px;border:1px solid var(--border-bright);
+  background:var(--surface-2);color:var(--text);transition:all .15s ease;
+}
+.schip:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
+
+.incoming{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:40px 24px;
+}
+.incoming .av{width:88px;height:88px;font-size:29px}
+.incoming__name{font-family:var(--font-display);font-size:27px}
+.incoming__num{font-family:var(--font-mono);font-size:12px;color:var(--text-dim)}
+.ringwave{width:118px;height:118px;border-radius:50%;display:grid;place-items:center;position:relative}
+.ringwave::before,.ringwave::after{
+  content:'';position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--blue);
+  animation:ring 2s ease-out infinite;
+}
+.ringwave::after{animation-delay:1s}
+@keyframes ring{from{transform:scale(1);opacity:.7}to{transform:scale(1.65);opacity:0}}
+
+.scenario-picker{display:flex;flex-direction:column;gap:14px}
+.scn{
+  display:grid;grid-template-columns:44px 1fr auto;gap:13px;align-items:center;text-align:left;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 15px;
+  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;
+}
+.scn:hover{transform:translateY(-2px);box-shadow:var(--shadow-1);border-color:var(--border-bright)}
+.scn .av{width:44px;height:44px;font-size:14px}
+.scn__name{font-weight:650;font-size:13.5px}
+.scn__desc{font-size:12px;color:var(--text-dim);margin-top:1px}
+.scn__hint{font-family:var(--font-mono);font-size:9.5px;color:var(--gold);letter-spacing:.5px;margin-top:3px}
+.scn__go{font-family:var(--font-mono);font-size:11px;color:var(--text-faint)}
+
+/* inference panel */
+.infer{display:flex;flex-direction:column;gap:16px}
+.infer__intent{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.infer__intent .badge{font-size:11px;padding:5px 11px}
+.confbar{height:6px;border-radius:3px;background:var(--surface-sunk);overflow:hidden;margin-top:8px}
+.confbar i{display:block;height:100%;background:var(--blue);border-radius:3px;width:0;transition:width .6s ease}
+.infer__collected{display:flex;flex-wrap:wrap;gap:6px}
+.slot-chip{font-family:var(--font-mono);font-size:10.5px;background:var(--green-dim);color:var(--green);padding:4px 10px;border-radius:6px;animation:fadeScale .3s ease-out both}
+.rule-note{font-size:12px;color:var(--text-dim);border-top:1px dashed var(--border-bright);padding-top:13px;line-height:1.6}
+.rule-note b{color:var(--text)}
+
+/* ---------- rules view ---------- */
+.rules-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:22px;align-items:start}
+.rule-row{
+  display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  padding:15px 4px;border-bottom:1px solid var(--border);
+}
+.rule-row:last-child{border-bottom:none}
+.rule-row__name{font-weight:650;font-size:14px}
+.rule-row__desc{font-size:12px;color:var(--text-dim);margin-top:1px}
+.seg{display:flex;background:var(--surface-sunk);border:1px solid var(--border);border-radius:10px;padding:3px;gap:2px}
+.seg button{
+  border:none;background:transparent;font-size:11px;font-weight:600;color:var(--text-dim);
+  padding:6px 11px;border-radius:7px;white-space:nowrap;transition:all .15s ease;
+}
+.seg button.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow-1)}
+.seg.locked{opacity:.55;pointer-events:none}
+
+.switch-row{display:flex;align-items:flex-start;gap:13px;padding:13px 2px;border-bottom:1px solid var(--border)}
+.switch-row:last-child{border-bottom:none}
+.switch-row__txt{flex:1;min-width:0}
+.switch-row__name{font-size:13.5px;font-weight:600}
+.switch-row__desc{font-size:12px;color:var(--text-dim);margin-top:2px}
+.switch{position:relative;width:40px;height:23px;flex-shrink:0;margin-top:2px}
+.switch input{opacity:0;width:100%;height:100%;position:absolute;cursor:pointer;z-index:2;margin:0}
+.switch .track{
+  position:absolute;inset:0;border-radius:999px;background:var(--surface-sunk);
+  border:1px solid var(--border-bright);transition:background .2s ease;
+}
+.switch .track::after{
+  content:'';position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;
+  background:var(--surface);box-shadow:var(--shadow-1);transition:transform .2s ease;
+}
+.switch input:checked + .track{background:var(--green);border-color:var(--green)}
+.switch input:checked + .track::after{transform:translateX(17px)}
+
+.esc-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.esc-list li{display:grid;grid-template-columns:22px 1fr;gap:10px;font-size:13px;padding:10px 12px;background:var(--surface-2);border-radius:9px}
+.esc-list li svg{width:16px;height:16px;stroke:var(--c-urgent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.esc-list li b{font-weight:650}
+
+.profile-rows{display:flex;flex-direction:column}
+.p-row{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:10px 2px;border-bottom:1px solid var(--border);font-size:13px}
+.p-row:last-child{border-bottom:none}
+.p-row dt{font-family:var(--font-mono);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-dim);padding-top:2px}
+.lang-pills{display:flex;gap:6px;flex-wrap:wrap}
+.lang-pill{font-family:var(--font-mono);font-size:10px;padding:3px 9px;border-radius:6px;background:var(--blue-dim);color:var(--blue)}
+
+/* ---------- toasts ---------- */
+.toasts{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:10px;z-index:100;max-width:360px}
+.toast{
+  background:var(--surface);border:1px solid var(--border-bright);border-left:4px solid var(--gold);
+  border-radius:12px;padding:13px 16px;box-shadow:var(--shadow-2);font-size:13px;
+  animation:fadeUp .3s ease-out both;
+}
+.toast--urgent{border-left-color:var(--c-urgent)}
+.toast b{font-weight:700}
+.toast .toast__sub{color:var(--text-dim);font-size:12px;margin-top:2px}
+
+/* summary card inside chat */
+.call-summary{
+  align-self:stretch;margin:6px 4px 2px;background:var(--surface);border:1px solid var(--border-bright);
+  border-radius:13px;padding:17px 18px;box-shadow:var(--shadow-1);animation:fadeUp .4s ease-out both;
+}
+.call-summary h4{font-family:var(--font-mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.call-summary .cs-row{display:grid;grid-template-columns:104px 1fr;gap:9px;font-size:12.5px;padding:4.5px 0;line-height:1.6}
+.call-summary .cs-k{font-family:var(--font-mono);font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);padding-top:1.5px}
+.call-summary .cs-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+/* demo footer note */
+.demo-note{
+  margin-top:26px;font-size:12px;color:var(--text-faint);text-align:center;
+  font-family:var(--font-mono);letter-spacing:.3px;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width:1080px){
+  .ov-grid,.live-grid,.rules-grid{grid-template-columns:1fr}
+  .modal__body{grid-template-columns:1fr}
+  .hero{grid-template-columns:1fr;gap:22px}
+  .hero__metric{text-align:left;border-left:none;padding-left:0;border-top:1px solid var(--border-bright);padding-top:20px}
+}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border);padding:14px 18px;gap:10px;flex-direction:row;flex-wrap:wrap;align-items:center}
+  .nav{flex-direction:row;overflow-x:auto;min-width:0;width:100%;order:5;padding-bottom:2px;scrollbar-width:thin}
+  .nav__label{display:none}
+  .nav button{white-space:nowrap;width:auto}
+  .sidebar__foot{margin-top:0;flex-direction:row;align-items:center;margin-left:auto}
+  .status-pill{display:none}
+  .owner{border-top:none;padding:0}
+  .owner__meta{display:none}
+  .main{padding:22px 18px 60px}
+  .chat{max-height:420px}
+  .sum-row{grid-template-columns:96px 1fr}
+}
+@media (max-width:560px){
+  .kpi-row{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .hero{padding:22px 20px}
+  .hero__metric .num{font-size:52px}
+  .log-head h2{font-size:26px}
+  .greet-row{justify-content:flex-start}
+  .greet-date{width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand__mark">E</div>
+      <div>
+        <div class="brand__name">Ellie</div>
+        <div class="brand__sub">AI call assistant</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <div class="nav__label">Assistant</div>
+      <button data-view="overview" class="active">
+        <svg viewBox="0 0 24 24"><path d="M3 12h7V3H3zM14 8h7V3h-7zM14 21h7v-9h-7zM3 21h7v-5H3z"/></svg>
+        Overview <span class="nav__dot" id="navDot"></span>
+      </button>
+      <button data-view="calls">
+        <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/></svg>
+        Call log
+      </button>
+      <button data-view="live">
+        <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/><path d="M14.5 2l2.3 2.3M22 2l-2.3 2.3M17 7l2.3-2.3"/></svg>
+        Answer a call
+      </button>
+      <button data-view="rules">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Assistant rules
+      </button>
+    </nav>
+
+    <div class="sidebar__foot">
+      <div class="status-pill"><i></i>Ellie is on duty</div>
+      <div class="owner">
+        <div class="owner__av">A</div>
+        <div>
+          <div class="owner__name">Advik</div>
+          <div class="owner__meta">Assistant answers for you</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- ===== OVERVIEW ===== -->
+    <section class="view active" id="view-overview">
+      <div class="greet-row">
+        <h1 class="greet" id="greet">Good evening, <em>Advik</em></h1>
+        <div class="greet-date" id="greetDate"></div>
+      </div>
+
+      <div class="ve-card ve-card--hero hero">
+        <div>
+          <div class="hero__principle">Ellie handles the conversation.<br><em>You only see the calls that matter.</em></div>
+          <p class="hero__note">While you were in meetings today, Ellie answered every call, understood who was calling and why, resolved the routine ones on the spot, and left exactly two things on your desk.</p>
+        </div>
+        <div class="hero__metric">
+          <div class="num" id="heroNum">0<span>/10</span></div>
+          <div class="lbl">calls needed you today</div>
+        </div>
+      </div>
+
+      <div class="kpi-row" id="kpiRow"></div>
+
+      <div class="ov-grid">
+        <div class="ov-col">
+          <div>
+            <div class="section-label">Needs your attention</div>
+            <div id="attentionList" style="display:flex;flex-direction:column;gap:12px"></div>
+          </div>
+          <div>
+            <div class="section-label">Recent calls</div>
+            <div class="ve-card ve-card--elevated" style="padding:8px 14px">
+              <div class="call-list" id="recentCalls"></div>
+            </div>
+          </div>
+        </div>
+        <div class="ov-col">
+          <div>
+            <div class="section-label">This week</div>
+            <div class="ve-card spark-card">
+              <svg viewBox="0 0 300 84" preserveAspectRatio="none" aria-label="Calls answered per day">
+                <defs>
+                  <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--blue)" stop-opacity=".18"/>
+                    <stop offset="100%" stop-color="var(--blue)" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,60 L50,48 L100,54 L150,32 L200,44 L250,22 L300,30 L300,84 L0,84 Z" fill="url(#sparkFill)"/>
+                <polyline points="0,60 50,48 100,54 150,32 200,44 250,22 300,30" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="300" cy="30" r="3.6" fill="var(--gold)"/>
+              </svg>
+              <div class="spark-days"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Today</span></div>
+              <div style="font-family:var(--font-mono);font-size:10.5px;color:var(--text-dim);margin-top:12px;display:flex;justify-content:space-between">
+                <span>63 calls answered</span><span style="color:var(--green)">81% autonomous</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="section-label">What Ellie did this week</div>
+            <div class="ve-card" style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-dim)">Deliveries routed, zero interruptions</span><b>17</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-dim)">Sales & spam calls screened out</span><b>21</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-dim)">Appointments rescheduled</span><b>6</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text-dim)">Messages taken & delivered</span><b>11</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;border-top:1px dashed var(--border-bright);padding-top:12px"><span style="color:var(--text-dim)">Estimated time saved</span><b style="color:var(--green)">3h 40m</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CALL LOG ===== -->
+    <section class="view" id="view-calls">
+      <div class="log-head">
+        <h2>Call log</h2>
+        <div class="greet-date" id="logCount"></div>
+      </div>
+      <div class="filters" id="filters"></div>
+      <div class="ve-card ve-card--elevated" style="padding:8px 16px">
+        <div class="call-list" id="callList"></div>
+      </div>
+      <p class="demo-note">Select any call to read Ellie's summary, decisions and full transcript.</p>
+    </section>
+
+    <!-- ===== LIVE CALL ===== -->
+    <section class="view" id="view-live">
+      <div class="log-head">
+        <h2>Answer a call</h2>
+        <div class="greet-date">Interactive demo — you play the caller, Ellie does the rest</div>
+      </div>
+
+      <div class="live-grid">
+        <!-- phone -->
+        <div class="ve-card ve-card--elevated phone-card" id="phoneCard" style="padding:0">
+          <div id="phoneBody" style="display:flex;flex-direction:column;flex:1"></div>
+        </div>
+
+        <!-- inference -->
+        <div class="ov-col">
+          <div class="ve-card infer" id="inferCard" style="display:none">
+            <div class="section-label" style="margin-bottom:4px">Live analysis</div>
+            <div>
+              <div class="infer__intent" id="inferIntent"></div>
+              <div class="confbar"><i id="confBar"></i></div>
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-top:5px" id="confLabel">listening…</div>
+            </div>
+            <div>
+              <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Collected so far</div>
+              <div class="infer__collected" id="inferSlots"></div>
+            </div>
+            <div class="rule-note" id="ruleNote"></div>
+          </div>
+
+          <div class="ve-card">
+            <div class="section-label" style="margin-bottom:10px">How to demo</div>
+            <ul class="node-list" style="font-size:12.5px;line-height:1.7;color:var(--text-dim)">
+              <li>Pick a caller on the left — the phone rings, then you play them.</li>
+              <li>Type freely or tap a suggested line.</li>
+              <li>Ask <b>"are you a robot?"</b> — Ellie always discloses it is an AI.</li>
+              <li>Watch the live panel classify the call as the conversation unfolds.</li>
+              <li>Hang up any time; Ellie writes the summary either way.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== RULES ===== -->
+    <section class="view" id="view-rules">
+      <div class="log-head">
+        <h2>Assistant rules</h2>
+        <div class="greet-date">How Ellie handles each kind of caller</div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="ov-col">
+          <div class="ve-card ve-card--elevated">
+            <div class="section-label">Handling by category</div>
+            <div id="ruleRows"></div>
+          </div>
+          <div class="ve-card">
+            <div class="section-label">Always escalate to you</div>
+            <ul class="esc-list">
+              <li><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span><b>Urgency language</b> — "emergency", "right now", "last chance today"</span></li>
+              <li><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span><b>Money matters</b> — payments, loans, card applications, policy renewals</span></li>
+              <li><svg viewBox="0 0 24 24"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/></svg><span><b>Family & close contacts</b> — caller identified as family asks to reach you</span></li>
+              <li><svg viewBox="0 0 24 24"><path d="M12 2v7M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span><b>Medical, legal or official</b> — clinics, courts, government offices</span></li>
+              <li><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span><b>Repeat callers</b> — anyone calling 3+ times in a day</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="ov-col">
+          <div class="ve-card ve-card--elevated">
+            <div class="section-label">Privacy & safety</div>
+            <div id="privacyRows"></div>
+          </div>
+          <div class="ve-card">
+            <div class="section-label">Assistant profile</div>
+            <div class="profile-rows">
+              <div class="p-row"><dt>Name</dt><dd>Ellie · AI assistant for Advik</dd></div>
+              <div class="p-row"><dt>Identity</dt><dd>Always discloses it is an AI if asked — never impersonates a human</dd></div>
+              <div class="p-row"><dt>Languages</dt><dd><span class="lang-pills"><span class="lang-pill">English</span><span class="lang-pill">हिन्दी</span><span class="lang-pill">Hinglish</span><span class="lang-pill">ಕನ್ನಡ</span><span class="lang-pill">தமிழ்</span></span></dd></div>
+              <div class="p-row"><dt>Working hours</dt><dd>Mon–Sat · 8:00 AM – 9:00 PM IST · outside hours takes messages</dd></div>
+              <div class="p-row"><dt>Never does</dt><dd>Share OTPs, addresses or account details · invent appointments, prices or commitments · accuse a caller of scamming without evidence</dd></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ CALL DETAIL MODAL ============ -->
+<div class="modal-back" id="modalBack">
+  <div class="modal" id="modalCard"></div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* ============================================================
+   ELLIE — demo application logic
+   ============================================================ */
+"use strict";
+
+/* ---------- category + badge helpers ---------- */
+const CATS = {
+  urgent:     {label:"Urgent / Important",  var:"--c-urgent"},
+  personal:   {label:"Personal",             var:"--c-personal"},
+  work:       {label:"Work",                 var:"--c-work"},
+  delivery:   {label:"Delivery / Service",   var:"--c-delivery"},
+  appointment:{label:"Appointment / Sched.",var:"--c-appt"},
+  sales:      {label:"Sales / Marketing",   var:"--c-sales"},
+  spam:       {label:"Spam / Low",           var:"--c-spam"},
+  unknown:    {label:"Unknown",              var:"--c-unknown"}
+};
+const PRIOS = {high:{label:"High"},medium:{label:"Medium"},low:{label:"Low"}};
+const HANDLED = {
+  auto:     {label:"Handled by Ellie", color:"var(--green)"},
+  message:  {label:"Message taken",    color:"var(--blue)"},
+  escalated:{label:"Escalated to you",color:"var(--c-urgent)"},
+  declined: {label:"Politely declined",color:"var(--c-appt)"},
+  ended:    {label:"Ended early",     color:"var(--c-spam)"}
+};
+const AV_COLORS = {
+  urgent:"var(--c-urgent)",personal:"var(--c-personal)",work:"var(--c-work)",
+  delivery:"var(--c-delivery)",appointment:"var(--c-appt)",sales:"var(--c-sales)",
+  spam:"var(--c-spam)",unknown:"var(--c-unknown)"
+};
+function catBadge(cat){const c=CATS[cat];return '<span class="badge" style="background:var('+c.var+'-dim);color:var('+c.var+')">'+c.label+'</span>';}
+function prioBadge(p){const v=p==="high"?"--p-high":p==="medium"?"--p-med":"--p-low";
+  return '<span class="prio" style="background:var('+v+'-dim);color:var('+v+')">'+PRIOS[p].label+'</span>';}
+function handledBadge(h){const x=HANDLED[h];return '<span class="handled" style="color:'+x.color+';border-color:'+x.color+'55">'+x.label+'</span>';}
+function avEl(name,cat,size){
+  const initials = name.split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase();
+  return '<div class="av" style="background:'+AV_COLORS[cat]+(size?';width:'+size+'px;height:'+size+'px':'')+'">'+initials+'</div>';
+}
+const $ = s=>document.querySelector(s);
+function esc(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+/* ---------- seed call data ---------- */
+const seedCalls = [
+{
+  id:1, time:"Today · 4:12 PM", caller:"Rahul Verma", number:"+91 98450 11223", org:"ABC Bank",
+  category:"urgent", priority:"high", handled:"escalated", newCall:true, dismissed:false,
+  oneLine:"Credit-card application on hold — address proof issue. Callback before 5 PM.",
+  summary:{
+    intent:"Credit card application CC-88214 is on hold because the address proof is unreadable; needs Advik to confirm details today.",
+    key:["Application CC-88214 · 6 days in process","Direct line: 98450 11223 (Rahul Verma)","Action needed before 5:00 PM today or the application goes on hold"],
+    decisions:["No changes made — Ellie does not act on financial requests without authorisation"],
+    actions:["Call Rahul Verma at 98450 11223 before 5:00 PM today"],
+    followUp:"Required today", next:"Call back before 5 PM and re-upload address proof"
+  },
+  transcript:[
+    {who:"caller",t:"Hello, is this Advik? This is Rahul Verma from ABC Bank."},
+    {who:"ellie",t:"Hi Rahul — this is Ellie, Advik's AI assistant. He can't come to the phone right now. How can I help?"},
+    {who:"caller",t:"It's about his credit card application. There's an issue with the address proof he uploaded — it can't be read."},
+    {who:"ellie",t:"I see. I'm not able to make changes to the application myself, but I can make sure Advik gets this. Could you share your direct number and a good time to reach you?"},
+    {who:"caller",t:"98450 11223. It does need his attention before 5 PM today, otherwise the application goes on hold for another week."},
+    {who:"ellie",t:"Understood — before 5 PM today. I've flagged this as high priority so Advik sees it immediately. Anything else I should pass on?"},
+    {who:"caller",t:"No, that's everything. Thank you."},
+    {who:"ellie",t:"Thank you, Rahul. I'll make sure he calls you before 5 PM. Have a good day."},
+    {who:"sys",t:"Call ended · 2 min 14 s · Escalated as high priority"}
+  ]
+},
+{
+  id:2, time:"Today · 3:48 PM", caller:"Suresh", number:"+91 98450 61230", org:"Swiggy",
+  category:"delivery", priority:"low", handled:"auto", newCall:true, dismissed:false,
+  oneLine:"Order #55821 routed to reception desk. Handled without interrupting you.",
+  summary:{
+    intent:"Delivery partner at the gate with order #55821; needed handover instructions.",
+    key:["Order #55821 · 4 items","Delivered to reception desk, Prestige Towers","OTP not shared — reception signed instead"],
+    decisions:["Delivery routed to reception per standing instruction"],
+    actions:[], followUp:"None", next:"Nothing to do — order delivered"
+  },
+  transcript:[
+    {who:"caller",t:"Hello sir? Swiggy order ke liye call kar raha hoon."},
+    {who:"ellie",t:"Hi! You've reached Advik's AI assistant, Ellie. He can't come to the phone right now — but I can help with the delivery. May I have your name and the order ID?"},
+    {who:"caller",t:"Suresh. Order ID 55821 — four items."},
+    {who:"ellie",t:"Thanks, Suresh. For security I can't share the OTP with anyone else, but here's what works: please leave the order with the reception desk at Prestige Towers — they'll bring it up. Are you at the main gate now?"},
+    {who:"caller",t:"Haan, gate pe hoon."},
+    {who:"ellie",t:"Great — the reception desk is straight past the gate, on your left. They'll take care of it. Anything else I can help with?"},
+    {who:"caller",t:"No, that's all. Thanks!"},
+    {who:"ellie",t:"Perfect. I've logged the delivery for Advik. Have a good day!"},
+    {who:"sys",t:"Call ended · 1 min 20 s · Resolved autonomously"}
+  ]
+},
+{
+  id:3, time:"Today · 3:02 PM", caller:"Priya Sharma", number:"+91 99860 41218", org:"Zentech Solutions",
+  category:"work", priority:"medium", handled:"message", newCall:false, dismissed:false,
+  oneLine:"Needs the Q3 review deck shared before Monday's standup.",
+  summary:{
+    intent:"Colleague requesting the Q3 review deck for Monday's standup.",
+    key:["Deck needed before Monday 10 AM standup","Priya can be reached on Slack or her direct line"],
+    decisions:["Message taken — no files shared without approval"],
+    actions:["Share the Q3 review deck with Priya before Monday, 10 AM"],
+    followUp:"Before Monday", next:"Send deck, or reply on Slack"
+  },
+  transcript:[
+    {who:"caller",t:"Hi, is Advik around? It's Priya from the design team."},
+    {who:"ellie",t:"Hi Priya — this is Ellie, Advik's AI assistant. He's away from the phone. Can I take a message?"},
+    {who:"caller",t:"Yes please — I need the Q3 review deck from him before Monday's standup. The 10 AM one."},
+    {who:"ellie",t:"Got it — the Q3 review deck, needed before Monday's 10 AM standup. I'll pass that on and ask him to get back to you. Anything else?"},
+    {who:"caller",t:"Nope, that's it. Thanks Ellie!"},
+    {who:"ellie",t:"Anytime. Have a good one!"},
+    {who:"sys",t:"Call ended · 52 s · Message delivered to Advik"}
+  ]
+},
+{
+  id:4, time:"Today · 1:37 PM", caller:"Unknown", number:"+91 79810 44567", org:"",
+  category:"spam", priority:"low", handled:"ended", newCall:false, dismissed:false,
+  oneLine:"Pre-approved loan pitch. Screened out in 44 seconds.",
+  summary:{
+    intent:"Telemarketing — pre-approved personal loan offer, ₹5 lakh.",
+    key:["Generic 'pre-approved' loan pitch","No verification of who they were calling","Number flagged by 3 spam-detection services"],
+    decisions:["Call ended politely; no details shared","Number added to screened list"],
+    actions:[], followUp:"None", next:"No action — Ellie screened it"
+  },
+  transcript:[
+    {who:"caller",t:"Good afternoon sir! Congratulations, you have been selected for a pre-approved personal loan of five lakh rupees—"},
+    {who:"ellie",t:"Thanks for calling. Before we continue — could you tell me who you're calling on behalf of, and what this is regarding?"},
+    {who:"caller",t:"Sir, this is a limited-time offer, I just need to confirm your PAN card details—"},
+    {who:"ellie",t:"I'm sorry, I can't share any personal or financial details. Advik isn't available for this, and I'll end the call here. Thank you for understanding."},
+    {who:"sys",t:"Call ended · 44 s · Classified as telemarketing · No notification sent (low priority)"}
+  ]
+},
+{
+  id:5, time:"Today · 12:15 PM", caller:"Dr. Mehta's Dental Clinic", number:"+91 80 4123 8890", org:"Apollo City Centre",
+  category:"appointment", priority:"medium", handled:"auto", newCall:false, dismissed:false,
+  oneLine:"Six-month cleaning moved to Sat 29th, 11 AM — tentative, confirm by tomorrow.",
+  summary:{
+    intent:"Clinic calling to schedule Advik's six-month dental cleaning.",
+    key:["Original slot: none booked · proposed Sat 29th, 11:00 AM","Advik's stated preference: weekday evenings after 6 PM or Saturday mornings","Clinic will hold the slot until tomorrow evening"],
+    decisions:["Slot placed on hold — not confirmed (requires your approval)"],
+    actions:["Confirm or decline the Sat 29th, 11 AM slot by tomorrow evening"],
+    followUp:"Tomorrow", next:"Tap confirm below or call the clinic"
+  },
+  transcript:[
+    {who:"caller",t:"Hello, this is Dr. Mehta's dental clinic calling for Advik."},
+    {who:"ellie",t:"Hi! This is Ellie, Advik's AI assistant. I can help — what's this about?"},
+    {who:"caller",t:"It's time for his six-month cleaning. Is he available on the 29th at 11 AM?"},
+    {who:"ellie",t:"I can't commit to a slot without checking with him, but I can share his preferences and confirm back. He generally prefers weekday evenings after 6 PM or Saturday mornings. Could you hold the 29th at 11 AM tentatively, and I'll confirm by tomorrow?"},
+    {who:"caller",t:"Yes, we can hold it until tomorrow evening."},
+    {who:"ellie",t:"Perfect — I've noted Saturday the 29th, 11 AM as tentative, pending Advik's confirmation. Anything else?"},
+    {who:"caller",t:"No, thank you!"},
+    {who:"ellie",t:"Thank you — have a good day."},
+    {who:"sys",t:"Call ended · 1 min 46 s · Preference collected, awaiting confirmation"}
+  ]
+},
+{
+  id:6, time:"Today · 11:41 AM", caller:"Mom", number:"+91 98450 70012", org:"",
+  category:"personal", priority:"medium", handled:"message", newCall:false, dismissed:false,
+  oneLine:"Call home tonight — Dad's test reports came back fine.",
+  summary:{
+    intent:"Family check-in — asking Advik to call home tonight.",
+    key:["Dad's test reports are back and all clear","Mom asks for a call tonight, after 8:30 PM"],
+    decisions:["Warm message taken and relayed"],
+    actions:["Call home after 8:30 PM"],
+    followUp:"Tonight", next:"Call Mom back tonight"
+  },
+  transcript:[
+    {who:"caller",t:"Beta, are you there? It's Mom."},
+    {who:"ellie",t:"Hi Aunty! This is Ellie, Advik's AI assistant. He's in a meeting right now — can I take a message?"},
+    {who:"caller",t:"Yes, tell him to call home tonight. And his father's reports came — everything is fine, but call after 8:30."},
+    {who:"ellie",t:"That's wonderful news about the reports. I'll tell him to call after 8:30 tonight — he'll be glad to hear it. Anything else?"},
+    {who:"caller",t:"No, that's all. You take care, Ellie."},
+    {who:"ellie",t:"You too, Aunty. Have a lovely day!"},
+    {who:"sys",t:"Call ended · 1 min 08 s · Family contact · message marked personal"}
+  ]
+},
+{
+  id:7, time:"Today · 10:58 AM", caller:"Arjun Nair", number:"+91 90080 22317", org:"Prime Estates",
+  category:"sales", priority:"low", handled:"declined", newCall:false, dismissed:false,
+  oneLine:"New Whitefield project pitch. Declined per your preference.",
+  summary:{
+    intent:"Real-estate broker pitching a pre-launch project in Whitefield.",
+    key:["Project: 'Green Meadows Phase 2', Whitefield","Offered 'pre-launch price' — no verified details provided","Left his number in case of future interest"],
+    decisions:["Offer declined politely, per your rule for sales calls","No personal or financial information shared"],
+    actions:[], followUp:"None", next:"No action — on file if you ever want it"
+  },
+  transcript:[
+    {who:"caller",t:"Good morning sir! Arjun from Prime Estates. We have an exciting pre-launch in Whitefield—"},
+    {who:"ellie",t:"Thanks for reaching out, Arjun. Before we go on — could you tell me exactly what this is regarding?"},
+    {who:"caller",t:"A villa project, Green Meadows Phase 2. Pre-launch pricing is very attractive — should I book a site visit?"},
+    {who:"ellie",t:"I appreciate the details. Advik isn't looking at property right now, so I'll pass on the offer this time. If anything changes, is there a number where he can reach you?"},
+    {who:"caller",t:"Sure, 90080 22317. The offer is only this week though—"},
+    {who:"ellie",t:"Noted, thank you. I've saved your details so he can reach out if he's interested. Have a good day!"},
+    {who:"sys",t:"Call ended · 1 min 31 s · Sales call declined, no interruption sent"}
+  ]
+},
+{
+  id:8, time:"Yesterday · 5:26 PM", caller:"Kavya Iyer", number:"+91 97400 55618", org:"HDFC ERGO",
+  category:"urgent", priority:"high", handled:"escalated", newCall:false, dismissed:false,
+  oneLine:"Health policy renewal due tomorrow — premium ₹18,450. Payment needs your approval.",
+  summary:{
+    intent:"Health insurance renewal payment due; relationship manager following up.",
+    key:["Policy no. 506-1187-D2 · expires tomorrow","Premium: ₹18,450 for the year","Kavya Iyer · relationship manager · 97400 55618"],
+    decisions:["No payment made — Ellie never authorises payments"],
+    actions:["Approve and pay the ₹18,450 premium before midnight tomorrow"],
+    followUp:"Tomorrow", next:"Pay online via the insurer's app, or call Kavya back"
+  },
+  transcript:[
+    {who:"caller",t:"Hello, may I speak to Advik? Kavya from HDFC ERGO."},
+    {who:"ellie",t:"Hi Kavya — this is Ellie, Advik's AI assistant. He can't take the call right now. How can I help?"},
+    {who:"caller",t:"His health policy renewal is due tomorrow and the premium hasn't come through — ₹18,450 for the year."},
+    {who:"ellie",t:"I understand. I'm not able to make payments on his behalf, but I'll flag this as high priority right away. Is there a reference I should include?"},
+    {who:"caller",t:"Policy 506-1187-D2. If it lapses, he'd lose the accumulated no-claim bonus, so it really can't wait."},
+    {who:"ellie",t:"Got it — policy 506-1187-D2, ₹18,450, before tomorrow midnight. Advik will see this within minutes. Anything else?"},
+    {who:"caller",t:"No, thank you. It's important that he sees it today."},
+    {who:"ellie",t:"He will. Thank you, Kavya — have a good evening."},
+    {who:"sys",t:"Call ended · 2 min 03 s · Escalated as high priority"}
+  ]
+},
+{
+  id:9, time:"Yesterday · 2:14 PM", caller:"Vijay", number:"+91 96320 88410", org:"BlueDart",
+  category:"delivery", priority:"low", handled:"auto", newCall:false, dismissed:false,
+  oneLine:"Courier delivered to reception, signature on file.",
+  summary:{
+    intent:"Courier partner confirming address for a prepaid package.",
+    key:["AWB 4471-8823-0091 · prepaid, no payment needed","Left with reception, signed and logged","Contents unknown — sealed parcel"],
+    decisions:["Standard delivery instruction followed"],
+    actions:[], followUp:"None", next:"Collect parcel from reception"
+  },
+  transcript:[
+    {who:"caller",t:"BlueDart bol raha hoon. Ek parcel hai Advik naam ka."},
+    {who:"ellie",t:"Namaste! This is Ellie, Advik's AI assistant. I can help with the delivery — it's a prepaid package to Prestige Towers, correct?"},
+    {who:"caller",t:"Haan, AWB number 4471-8823-0091. Kahan du?"},
+    {who:"ellie",t:"You can leave it at the reception desk inside the main gate — they're authorised to sign for it. Could you share the AWB number once more so I can log it?"},
+    {who:"caller",t:"Done, 4471-8823-0091. Reception ne sign kar diya."},
+    {who:"ellie",t:"Perfect, that's logged. Thank you, Vijay!"},
+    {who:"sys",t:"Call ended · 48 s · Resolved autonomously"}
+  ]
+},
+{
+  id:10, time:"Yesterday · 11:03 AM", caller:"Unknown", number:"+91 140 552 0091", org:"",
+  category:"spam", priority:"low", handled:"ended", newCall:false, dismissed:false,
+  oneLine:"Recorded robo-message in Hindi. Auto-detected, ended in 21 seconds.",
+  summary:{
+    intent:"Robocall — recorded promotional message, no live caller.",
+    key:["Pre-recorded Hindi message about a 'free vacation package'","Landline series +91 140 (telemarketing prefix)","No response to questions — confirmed automated"],
+    decisions:["Call ended after confirming it was a recording"],
+    actions:[], followUp:"None", next:"No action — number blocked"
+  },
+  transcript:[
+    {who:"caller",t:"[Recording] Namaskar! Aap ek muft vacation package jeetne ke liye chune gaye hain—"},
+    {who:"ellie",t:"Could I ask who's calling and what this is regarding? I want to make sure I route this correctly."},
+    {who:"caller",t:"[Recording] …apna number hamari team ko batane ke liye 1 dabaiye…"},
+    {who:"ellie",t:"I'm sorry, this sounds like an automated promotion. Advik isn't available for this, and I'll end the call here. Thank you."},
+    {who:"sys",t:"Call ended · 21 s · Robocall detected · number blocked"}
+  ]
+}
+];
+
+/* ---------- app state ---------- */
+let calls = seedCalls.map(c=>({...c}));
+let nextId = 100;
+const rules = {
+  urgent:     {mode:"escalate", locked:true},
+  personal:   {mode:"message",  locked:false},
+  work:       {mode:"message",  locked:false},
+  delivery:   {mode:"auto",     locked:false},
+  appointment:{mode:"auto",     locked:false},
+  sales:      {mode:"decline",  locked:false},
+  spam:       {mode:"end",      locked:false},
+  unknown:    {mode:"message",  locked:false}
+};
+const ruleOptions = {
+  auto:["Auto-handle","Ellie resolves the call"],
+  message:["Take message","Collect details, tell them you'll call back"],
+  escalate:["Always ask you","Priority notification right away"],
+  decline:["Politely decline","Turn down the offer, keep details"],
+  end:["End quickly","Screen out robocalls and spam"]
+};
+const privacy = [
+  {key:"sayUnavailable", name:"Tell callers you are unavailable", desc:"Ellie says you can't come to the phone, without inventing a reason", on:true},
+  {key:"shareName", name:"Share your name with callers", desc:"Only if they already know they've reached the right number", on:false},
+  {key:"deliveryInstructions", name:"Give delivery instructions", desc:"Reception desk handover — never OTPs or flat numbers", on:true},
+  {key:"appointmentPrefs", name:"Share scheduling preferences", desc:"General availability only; never confirms without your OK", on:true},
+  {key:"confirmAppts", name:"Confirm appointments on your behalf", desc:"Only for reschedules you've already approved once", on:false},
+  {key:"discloseAI", name:"Disclose that Ellie is an AI", desc:"Always on — Ellie never pretends to be human", on:true, locked:true}
+];
+
+/* ---------- greeting ---------- */
+function greeting(){
+  const h = new Date().getHours();
+  if(h<5) return "Good night"; if(h<12) return "Good morning";
+  if(h<17) return "Good afternoon"; return "Good evening";
+}
+$("#greet").innerHTML = greeting()+", <em>Advik</em>";
+$("#greetDate").textContent = new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
+/* ---------- overview rendering ---------- */
+function countUp(el, target, suffix){
+  const dur = 900, t0 = performance.now();
+  (function step(t){
+    const p = Math.min((t-t0)/dur,1), e = 1-Math.pow(1-p,3);
+    el.textContent = Math.round(target*e);
+    if(p<1) requestAnimationFrame(step);
+    else if(suffix) el.innerHTML = el.textContent + suffix;
+  })(t0);
+}
+
+function renderOverview(){
+  const today = calls.filter(c=>c.time.startsWith("Today"));
+  const attended = today.filter(c=>c.priority==="high").length;
+  const autoCount = today.filter(c=>c.handled!=="escalated").length;
+  const heroNum = $("#heroNum");
+  countUp(heroNum, attended, '<span>/'+today.length+'</span>');
+
+  const mins = Math.round(today.length*3.4);
+  $("#kpiRow").innerHTML = [
+    {v:today.length, l:"Calls answered today", t:"+3 vs yesterday"},
+    {v:autoCount, l:"Resolved without you", t:"no interruption"},
+    {v:mins+"<small>&nbsp;min</small>", l:"Time saved today", t:"est. 3.4 min per call"},
+    {v:attended, l:"Need your attention", t:"shown below", warn:true}
+  ].map((k,i)=>'<div class="ve-card ve-card--elevated kpi" style="--i:'+i+'"><div class="kpi__value">'+k.v+'</div><div class="kpi__label">'+k.l+'</div><div class="kpi__trend" style="'+(k.warn?"color:var(--c-urgent)":"")+'">'+k.t+'</div></div>').join("");
+
+  // attention cards
+  const attn = calls.filter(c=>c.priority==="high" && !c.dismissed);
+  const attnEl = $("#attentionList");
+  if(!attn.length){
+    attnEl.innerHTML = '<div class="note-empty">Nothing needs you right now. Ellie has the phone.</div>';
+  } else {
+    attnEl.innerHTML = attn.map(c=>
+      '<div class="note-card">'+
+        '<div class="note-card__top">'+prioBadge(c.priority)+'<span style="font-family:var(--font-mono);font-size:10.5px;color:var(--text-dim)">'+c.time+'</span></div>'+
+        '<div class="note-card__title">Important call from '+esc(c.caller)+(c.org?' at '+esc(c.org):'')+'.</div>'+
+        '<div class="note-card__body"><b>Reason:</b> '+esc(c.oneLine.split(".")[0])+'.<br><b>Action required:</b> '+esc(c.summary.next)+'.<br><b>Priority:</b> '+PRIOS[c.priority].label+'.</div>'+
+        '<div class="note-card__actions"><button class="btn btn--primary btn--sm" onclick="dismissCall('+c.id+')">Mark handled</button><button class="btn btn--sm" onclick="openCallModal('+c.id+')">View details</button></div>'+
+      '</div>').join("");
+  }
+  $("#navDot").style.display = attn.length ? "block" : "none";
+
+  // recent calls
+  $("#recentCalls").innerHTML = calls.slice(0,5).map(callRowHTML).join("");
+
+  const auto = calls.filter(c=>c.handled!=="escalated").length;
+  $("#logCount") && ($("#logCount").textContent = "");
+}
+
+function callRowHTML(c){
+  return '<div class="call-row'+(c.isNewCall?' is-new':'')+'" onclick="openCallModal('+c.id+')">'+
+    avEl(c.caller,c.category)+
+    '<div class="call-row__main">'+
+      '<div class="call-row__name">'+esc(c.caller)+(c.org?' <span class="call-row__org">· '+esc(c.org)+'</span>':'')+'</div>'+
+      '<div class="call-row__line">'+esc(c.oneLine)+'</div>'+
+    '</div>'+
+    '<div class="call-row__meta">'+
+      '<span class="call-row__time">'+c.time+'</span>'+
+      '<div class="call-row__tags">'+catBadge(c.category)+prioBadge(c.priority)+handledBadge(c.handled)+'</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function dismissCall(id){
+  const c = calls.find(x=>x.id===id);
+  if(c){ c.dismissed = true; renderOverview(); toast("Noted","Marked as handled — "+c.caller+" is off your desk."); }
+}
+
+/* ---------- call log ---------- */
+let activeFilter = "all";
+function renderFilters(){
+  const counts = {};
+  calls.forEach(c=>counts[c.category]=(counts[c.category]||0)+1);
+  const opts = [["all","All"]].concat(Object.keys(CATS).map(k=>[k,CATS[k].label]));
+  $("#filters").innerHTML = opts.map(([k,l])=>
+    '<button class="fchip'+(activeFilter===k?' active':'')+'" data-f="'+k+'">'+l+(counts[k]?' · '+counts[k]:'')+'</button>').join("");
+  $("#filters").querySelectorAll(".fchip").forEach(b=>b.onclick=()=>{activeFilter=b.dataset.f;renderFilters();renderCallList();});
+}
+function renderCallList(){
+  const list = activeFilter==="all"?calls:calls.filter(c=>c.category===activeFilter);
+  $("#callList").innerHTML = list.length? list.map(callRowHTML).join("")
+    : '<div class="note-empty" style="grid-column:1/-1">No calls in this category yet.</div>';
+  $("#logCount").textContent = list.length+" of "+calls.length+" calls shown";
+}
+
+/* ---------- call detail modal ---------- */
+function openCallModal(id){
+  const c = calls.find(x=>x.id===id); if(!c) return;
+  const s = c.summary;
+  const li = arr => arr.length? arr.map(x=>'<li>'+esc(x)+'</li>').join("") : "<li style='color:var(--text-faint)'>None</li>";
+  $("#modalCard").innerHTML =
+    '<div class="modal__head">'+
+      avEl(c.caller,c.category,52)+
+      '<div style="min-width:0">'+
+        '<div class="modal__title">'+esc(c.caller)+'</div>'+
+        '<div class="modal__sub">'+(c.org?esc(c.org)+' · ':'')+esc(c.number)+' · '+c.time+'</div>'+
+        '<div class="modal__tags">'+catBadge(c.category)+prioBadge(c.priority)+handledBadge(c.handled)+'</div>'+
+      '</div>'+
+      '<button class="modal__close" onclick="closeModal()" aria-label="Close">×</button>'+
+    '</div>'+
+    '<div class="modal__body">'+
+      '<div>'+
+        '<div class="section-label" style="margin-bottom:8px">AI summary</div>'+
+        '<div class="sum-grid" style="font-size:13px">'+
+          '<div class="sum-row"><dt>Intent</dt><dd>'+esc(s.intent)+'</dd></div>'+
+          '<div class="sum-row"><dt>Key info</dt><dd><ul>'+li(s.key)+'</ul></dd></div>'+
+          '<div class="sum-row"><dt>Decisions</dt><dd><ul>'+li(s.decisions)+'</ul></dd></div>'+
+          '<div class="sum-row"><dt>Action items</dt><dd><ul>'+li(s.actions)+'</ul></dd></div>'+
+          '<div class="sum-row"><dt>Follow-up</dt><dd>'+esc(s.followUp)+'</dd></div>'+
+          '<div class="sum-row"><dt>Suggested next</dt><dd>'+esc(s.next)+'</dd></div>'+
+        '</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="section-label" style="margin-bottom:8px">Transcript</div>'+
+        '<div class="transcript">'+
+          c.transcript.map(t=>'<div class="t-line '+t.who+'"><div class="t-who">'+(t.who==="caller"?esc(c.caller):t.who==="ellie"?"Ellie":"·")+'</div><div class="t-text">'+esc(t.t)+'</div></div>').join("")+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="modal__foot">'+
+      (c.priority==="high"&&!c.dismissed?'<button class="btn btn--primary" onclick="dismissCall('+c.id+');closeModal()">Mark as handled</button>':"")+
+      '<button class="btn btn--ghost" onclick="closeModal()">Close</button>'+
+    '</div>';
+  $("#modalBack").classList.add("open");
+}
+function closeModal(){ $("#modalBack").classList.remove("open"); }
+$("#modalBack").addEventListener("click",e=>{ if(e.target.id==="modalBack") closeModal(); });
+
+/* ---------- rules view ---------- */
+function renderRules(){
+  $("#ruleRows").innerHTML = Object.keys(CATS).map(cat=>{
+    const r = rules[cat];
+    const modes = cat==="urgent"
+      ? [["escalate","Always ask you"]]
+      : cat==="spam"
+        ? [["end","End quickly"],["message","Take message"]]
+        : cat==="sales"
+          ? [["decline","Decline"],["message","Take message"],["auto","Hear them out"]]
+          : [["auto","Auto-handle"],["message","Take message"],["escalate","Always ask you"]];
+    return '<div class="rule-row">'+
+      '<div><div class="rule-row__name">'+CATS[cat].label+'</div><div class="rule-row__desc">'+ruleDesc(cat)+'</div></div>'+
+      '<div class="seg'+(r.locked?' locked':'')+'">'+modes.map(m=>
+        '<button data-cat="'+cat+'" data-mode="'+m[0]+'" class="'+(r.mode===m[0]?'active':'')+'">'+m[1]+'</button>').join("")+'</div>'+
+    '</div>';
+  }).join("");
+  $("#ruleRows").querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{
+    rules[b.dataset.cat].mode = b.dataset.mode;
+    renderRules();
+    toast("Rule updated", CATS[b.dataset.cat].label+" calls will now be "+ruleOptions[b.dataset.mode][0].toLowerCase()+"led by Ellie.");
+    renderLiveRuleNote();
+  });
+
+  $("#privacyRows").innerHTML = privacy.map(p=>
+    '<div class="switch-row">'+
+      '<div class="switch-row__txt"><div class="switch-row__name">'+p.name+'</div><div class="switch-row__desc">'+p.desc+'</div></div>'+
+      '<label class="switch"><input type="checkbox" '+(p.on?'checked':'')+(p.locked?' disabled':'')+'><span class="track"></span></label>'+
+    '</div>').join("");
+}
+function ruleDesc(cat){
+  return {
+    urgent:"Money, deadlines, family or official matters — always brought to you",
+    personal:"Friends and family — warm messages, no details revealed",
+    work:"Colleagues and partners — takes messages, shares nothing",
+    delivery:"Couriers and delivery partners — routed to reception, no OTPs",
+    appointment:"Clinics and services — collects preferences, never commits",
+    sales:"Pitches and offers — hears them out, keeps details on file",
+    spam:"Robocalls and telemarketers — identified and ended",
+    unknown:"Not enough context yet — Ellie asks before deciding"
+  }[cat];
+}
+
+/* ---------- toasts ---------- */
+function toast(title, sub, urgent){
+  const el = document.createElement("div");
+  el.className = "toast"+(urgent?" toast--urgent":"");
+  el.innerHTML = "<b>"+esc(title)+"</b>"+(sub?'<div class="toast__sub">'+esc(sub)+"</div>":"");
+  $("#toasts").appendChild(el);
+  setTimeout(()=>{ el.style.opacity="0"; el.style.transition="opacity .4s"; setTimeout(()=>el.remove(),400); }, 4600);
+}
+
+/* ============================================================
+   LIVE CALL ENGINE — you play the caller, Ellie responds
+   ============================================================ */
+const SCENARIOS = [
+{
+  id:"scn-bank",
+  name:"Rahul · ABC Bank", desc:"Relationship manager with a time-sensitive card issue", hint:"Escalation demo · high priority",
+  caller:"Rahul Verma", org:"ABC Bank", number:"+91 98450 11223", cat:"urgent", avColor:"var(--c-urgent)",
+  turns:[
+    {chips:["Hello, is this Advik? Rahul from ABC Bank here","Hi, I'm calling about a credit card application"],
+     reply:"Hi Rahul — this is Ellie, Advik's AI assistant. He can't come to the phone right now. How can I help?",
+     conf:{cat:"urgent",p:55}},
+    {chips:["It's about his card application — the address proof can't be read","There's an issue with application CC-88214"],
+     reply:"I see. I'm not able to make changes to the application myself, but I can make sure Advik gets this. Could you share your direct number and how urgent this is?",
+     conf:{cat:"urgent",p:82}, info:["Application CC-88214 · address proof issue"]},
+    {chips:["98450 11223. It needs action before 5 PM today or it goes on hold","My direct line. It's urgent — before 5 PM today"],
+     reply:"Understood — 98450 11223, before 5 PM today. I've flagged this as high priority so Advik sees it immediately. Anything else I should pass on?",
+     conf:{cat:"urgent",p:95}, info:["Callback: 98450 11223 (Rahul)","Deadline: today, 5:00 PM"]},
+    {chips:["No, that's everything. Thank you"],
+     reply:"Thank you, Rahul. I'll make sure he calls you before 5 PM. Have a good day.",
+     conf:{cat:"urgent",p:97}}
+  ],
+  result:{
+    priority:"high", oneLine:"Credit-card application CC-88214 on hold — callback needed before 5 PM today.",
+    intent:"Credit card application CC-88214 is on hold because of an address-proof issue; needs action before 5 PM today.",
+    key:["Application CC-88214 · address proof unreadable","Direct line: 98450 11223 (Rahul Verma)","Action needed before 5:00 PM today"],
+    decisions:["No changes made — Ellie does not act on financial requests"],
+    actions:["Call Rahul at 98450 11223 before 5:00 PM today"],
+    followUp:"Required today", next:"Call back before 5 PM"
+  }
+},
+{
+  id:"scn-swiggy",
+  name:"Suresh · Swiggy delivery", desc:"Delivery partner at the gate with an order", hint:"Code-mixed · auto-handled",
+  caller:"Suresh", org:"Swiggy", number:"+91 98450 61230", cat:"delivery", avColor:"var(--c-delivery)",
+  turns:[
+    {chips:["Hello? Swiggy order ke liye call kar raha hoon","Hi, I'm at the gate — where do I deliver?"],
+     reply:"Hi! You've reached Advik's AI assistant, Ellie. He can't come to the phone right now — but I can help with the delivery. May I have your name and the order ID?",
+     conf:{cat:"delivery",p:74}},
+    {chips:["Suresh. Order ID 55821 — four items","Order 55821, customer name Advik"],
+     reply:"Thanks, Suresh. For security I can't share the OTP with anyone else, but here's what works: please leave the order with the reception desk at Prestige Towers — they'll bring it up. Are you at the main gate now?",
+     conf:{cat:"delivery",p:90}, info:["Order #55821 · Suresh"]},
+    {chips:["Haan, main gate pe hoon","Yes, I'm at the gate now"],
+     reply:"Great — the reception desk is straight past the gate, on your left. They'll take care of it. Anything else I can help with?",
+     conf:{cat:"delivery",p:95}, info:["Routed to reception · no OTP shared"]},
+    {chips:["No, that's all. Thanks!"],
+     reply:"Perfect. I've logged the delivery for Advik. Have a good day!",
+     conf:{cat:"delivery",p:96}}
+  ],
+  result:{
+    priority:"low", oneLine:"Order #55821 routed to reception desk. Resolved without interrupting you.",
+    intent:"Delivery partner at the gate with order #55821; needed handover instructions.",
+    key:["Order #55821 · 4 items","Delivered to reception desk, Prestige Towers","OTP not shared — reception signed instead"],
+    decisions:["Delivery routed to reception per standing instruction"],
+    actions:[], followUp:"None", next:"Nothing to do — order delivered"
+  }
+},
+{
+  id:"scn-sales",
+  name:"Rakesh · SecureLife Insurance", desc:"Salesperson pitching a savings plan", hint:"Hears them out · declines politely",
+  caller:"Rakesh", org:"SecureLife Insurance", number:"+91 98220 31455", cat:"sales", avColor:"var(--c-sales)",
+  turns:[
+    {chips:["Good afternoon sir! Rakesh from SecureLife Insurance — exciting new savings plan!","Hi sir, I have a limited-time insurance offer for you"],
+     reply:"Thanks for reaching out! Before we go on — could you tell me what this is regarding, and who you're calling on behalf of?",
+     conf:{cat:"sales",p:70}},
+    {chips:["SecureLife, sir. A savings plan with 8% guaranteed returns!","It's a savings-cum-insurance plan, very good returns"],
+     reply:"I appreciate the details, Rakesh. Advik isn't looking for a new policy right now, so I'll pass on the offer this time. If anything changes, is there a number where he can reach SecureLife?",
+     conf:{cat:"sales",p:88}, info:["SecureLife · savings plan pitch","Claims '8% guaranteed returns' — unverified"]},
+    {chips:["You can reach me at 98220 31455. Offer ends this week only!","98220 31455 — but sir, this week only!"],
+     reply:"Noted, thank you. I've saved your details so he can reach out if he's interested. Have a good day!",
+     conf:{cat:"sales",p:94}, info:["Contact saved: 98220 31455"]},
+    {chips:["[Say nothing more]"],
+     reply:"Thank you for calling SecureLife, and have a good day.",
+     conf:{cat:"sales",p:94}}
+  ],
+  result:{
+    priority:"low", oneLine:"Savings-plan pitch from SecureLife. Declined per your preferences, details on file.",
+    intent:"Insurance salesperson pitching a savings plan with claimed guaranteed returns.",
+    key:["SecureLife · savings-cum-insurance plan","Claimed '8% guaranteed returns' — Ellie verified nothing","Left his number in case of future interest"],
+    decisions:["Offer declined politely, per your rule for sales calls","No personal or financial information shared"],
+    actions:[], followUp:"None", next:"No action — on file if you ever want it"
+  }
+},
+{
+  id:"scn-clinic",
+  name:"Dr. Mehta's clinic", desc:"Front desk scheduling your six-month cleaning", hint:"Collects preferences · never commits",
+  caller:"Dr. Mehta's Dental Clinic", org:"Apollo City Centre", number:"+91 80 4123 8890", cat:"appointment", avColor:"var(--c-appt)",
+  turns:[
+    {chips:["Hello, this is Dr. Mehta's dental clinic calling for Advik","Hi, calling to schedule an appointment for Advik"],
+     reply:"Hi! This is Ellie, Advik's AI assistant. I can help — what's this about?",
+     conf:{cat:"appointment",p:78}},
+    {chips:["It's time for his six-month cleaning. Is he free on the 29th at 11 AM?","We'd like to book his dental check-up — the 29th?"],
+     reply:"I can't commit to a slot without checking with him, but I can share his preferences and confirm back. He generally prefers weekday evenings after 6 PM or Saturday mornings. Could you hold the 29th at 11 AM tentatively, and I'll confirm by tomorrow?",
+     conf:{cat:"appointment",p:90}, info:["Requested: 29th, 11:00 AM · dental cleaning"]},
+    {chips:["Yes, we can hold it until tomorrow evening","That works — hold it till tomorrow"],
+     reply:"Perfect — I've noted Saturday the 29th, 11 AM as tentative, pending Advik's confirmation. Anything else?",
+     conf:{cat:"appointment",p:95}, info:["Slot held: 29th, 11 AM · confirm by tomorrow"]},
+    {chips:["No, thank you!"],
+     reply:"Thank you — have a good day.",
+     conf:{cat:"appointment",p:96}}
+  ],
+  result:{
+    priority:"medium", oneLine:"Dental cleaning tentatively held for Sat 29th, 11 AM — confirm by tomorrow.",
+    intent:"Clinic calling to schedule Advik's six-month dental cleaning.",
+    key:["Requested slot: Saturday the 29th, 11:00 AM","Advik's stated preference: weekday evenings after 6 PM or Saturday mornings","Clinic will hold the slot until tomorrow evening"],
+    decisions:["Slot placed on hold — not confirmed (requires your approval)"],
+    actions:["Confirm or decline the Sat 29th, 11 AM slot by tomorrow evening"],
+    followUp:"Tomorrow", next:"Confirm the slot or call the clinic"
+  }
+},
+{
+  id:"scn-friend",
+  name:"Rohit · your friend", desc:"Wants to confirm Sunday football", hint:"Personal · message taken",
+  caller:"Rohit", org:"", number:"+91 99001 55480", cat:"personal", avColor:"var(--c-personal)",
+  turns:[
+    {chips:["Hey! Is Advik there? It's Rohit.","Bro, pick up — it's Rohit"],
+     reply:"Hi Rohit! This is Ellie, Advik's AI assistant. He can't come to the phone right now — can I take a message?",
+     conf:{cat:"personal",p:80}},
+    {chips:["Yeah — football at 7 on Sunday. Tell him not to be late this time!","Tell him we're playing football Sunday at 7"],
+     reply:"Got it — football at 7 on Sunday, and be on time this time! I'll pass that on and ask him to give you a call. Anything else?",
+     conf:{cat:"personal",p:92}, info:["Football · Sunday 7:00 PM"]},
+    {chips:["Nope, that's it. Bye!"],
+     reply:"Thanks Rohit, have a great day!",
+     conf:{cat:"personal",p:93}}
+  ],
+  result:{
+    priority:"medium", oneLine:"Sunday 7 PM football confirmed from his side — wants a call back.",
+    intent:"Friend calling to confirm Sunday football plans.",
+    key:["Football on Sunday at 7:00 PM","'Don't be late this time' — direct quote"],
+    decisions:["Message taken and relayed"],
+    actions:["Call Rohit back before Sunday"],
+    followUp:"This weekend", next:"Call Rohit back"
+  }
+},
+{
+  id:"scn-robo",
+  name:"Unknown · suspicious number", desc:"Something doesn't sound right", hint:"Spam handling · no interruption",
+  caller:"Unknown Caller", org:"", number:"+91 140 977 2210", cat:"spam", avColor:"var(--c-spam)",
+  turns:[
+    {chips:["Congratulations sir! You have been selected for a free vacation package—","Sir, sir — your KYC is expiring, verify your PAN immediately—"],
+     reply:"Could I ask who's calling and what this is regarding? I want to make sure I route this correctly.",
+     conf:{cat:"spam",p:60}},
+    {chips:["This is regarding your exclusive package, sir — just press 1—","Your account will be blocked in 24 hours, sir—"],
+     reply:"I'm sorry, this sounds like an automated promotion. Advik isn't available for this, and I'll end the call here. Thank you.",
+     conf:{cat:"spam",p:88}}
+  ],
+  result:{
+    priority:"low", oneLine:"Unsolicited pitch from a telemarketing prefix. Ended early, no interruption sent.",
+    intent:"Telemarketing or scam-style call — unverifiable claims, pressure tactics, no clear organisation.",
+    key:["Number from +91 140 telemarketing prefix series","Pressure language — 'account blocked', 'last chance'","Would not clearly identify the organisation"],
+    decisions:["Call ended politely — no accusation made, no details shared","Number added to screened list"],
+    actions:[], followUp:"None", next:"No action — Ellie screened it"
+  }
+}
+];
+
+/* live call state */
+let live = null;
+
+function renderScenarioPicker(){
+  const body = $("#phoneBody");
+  body.innerHTML =
+    '<div class="incoming" style="padding-top:20px">'+
+      '<div class="scn__go" style="margin-bottom:6px">SIMULATE AN INCOMING CALL</div>'+
+      '<div class="scenario-picker" style="width:100%">'+
+        SCENARIOS.map(s=>
+          '<button class="scn" onclick="startLive(\''+s.id+'\')">'+
+            '<div class="av" style="background:'+s.avColor+'">'+s.caller[0]+'</div>'+
+            '<div style="min-width:0"><div class="scn__name">'+esc(s.name)+'</div><div class="scn__desc">'+esc(s.desc)+'</div><div class="scn__hint">'+esc(s.hint)+'</div></div>'+
+            '<div class="scn__go">ring →</div>'+
+          '</button>').join("")+
+      '</div>'+
+    '</div>';
+  $("#inferCard").style.display = "none";
+}
+
+function startLive(id){
+  const s = SCENARIOS.find(x=>x.id===id); if(!s) return;
+  live = {scn:s, turn:0, fallbacks:0, collected:[], transcript:[], t0:new Date(), done:false, cat:s.cat, conf:0, endedBy:"natural"};
+  const body = $("#phoneBody");
+  body.innerHTML =
+    '<div class="phone-head">'+
+      '<div class="av" style="background:'+s.avColor+'">'+s.caller[0]+'</div>'+
+      '<div><div class="phone-head__name">'+esc(s.caller)+(s.org?' <span style="color:var(--text-dim);font-weight:400">· '+esc(s.org)+'</span>':'')+'</div><div class="phone-head__num">'+esc(s.number)+'</div></div>'+
+      '<div class="phone-head__timer" id="liveTimer">0:00</div>'+
+      '<button class="phone-head__end" onclick="hangUp()">End</button>'+
+    '</div>'+
+    '<div class="chat" id="chat"></div>'+
+    '<div class="chips-row" id="chips"></div>'+
+    '<div class="chat-input">'+
+      '<input id="callerInput" type="text" placeholder="You are the caller — type anything…" autocomplete="off">'+
+      '<button class="btn btn--primary" onclick="sendCaller()">Say</button>'+
+    '</div>';
+  live.timer = setInterval(()=>{
+    if(!live) return;
+    const sec = Math.floor((new Date()-live.t0)/1000);
+    const el = $("#liveTimer"); if(el) el.textContent = Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0");
+  },1000);
+
+  $("#inferCard").style.display = "flex";
+  setInference("unknown", 8, "listening…");
+  $("#inferSlots").innerHTML = "";
+  renderLiveRuleNote();
+
+  sysMsg("Incoming call · answered by Ellie");
+  ellieSays("Hello, you've reached Advik's AI assistant, Ellie. Advik can't come to the phone right now — how can I help?", 700);
+  renderChips();
+  setTimeout(()=>{ const i=$("#callerInput"); if(i) i.focus(); }, 400);
+}
+
+function renderChips(){
+  const box = $("#chips"); if(!box || !live || live.done) { if(box) box.innerHTML=""; return; }
+  const t = live.scn.turns[live.turn];
+  box.innerHTML = t? t.chips.map(c=>'<button class="schip" onclick="chipSay(this)">'+esc(c)+'</button>').join("") : "";
+}
+function chipSay(btn){ const v = btn.textContent; sendCallerText(v); }
+
+function sendCaller(){
+  const inp = $("#callerInput"); if(!inp) return;
+  const v = inp.value.trim(); if(!v) return;
+  inp.value = "";
+  sendCallerText(v);
+}
+
+function sendCallerText(text){
+  if(!live || live.done) return;
+  callerSays(text);
+  live.transcript.push({who:"caller", t:text});
+
+  // global intents — checked on every turn
+  if(/\b(are|r)\s+(you|u)\s+(a\s+|an\s+)?(robot|human|ai|machine|real)|real person|human being|who\s+(are|r)\s+you|what are you\b/i.test(text)){
+    ellieSays("I'm Ellie — an AI assistant. I help Advik with his calls, and I'm upfront about not being human. Is there something I can help you with?");
+    return;
+  }
+  if(/\b(urgent|emergency|right now|asap|immediately|ghar se bhaag)\b/i.test(text)){
+    toast("Urgency language detected","Ellie raised the priority of this call while it continues.", true);
+  }
+
+  const t = live.scn.turns[live.turn];
+  if(!t){ wrapUp(); return; }
+
+  const matched = !t.match || t.match.test(text) ||
+    t.chips.some(c=>c.toLowerCase()===text.toLowerCase()) ||
+    t.chips.some(c=>text.toLowerCase().includes(c.toLowerCase().replace(/[^a-z0-9 ]/g,"").slice(0,14))) ||
+    text.split(/\s+/).length >= 3;
+
+  if(!matched){
+    live.fallbacks++;
+    if(live.fallbacks>=3){
+      ellieSays("No problem at all — I'll let Advik know you called and that it's best to reach him directly. Thanks for calling!");
+      setTimeout(hangUp, 1600);
+    } else {
+      ellieSays("I'm sorry, I didn't quite catch that — could you tell me again what this is regarding?");
+    }
+    return;
+  }
+
+  live.fallbacks = 0;
+  t.info && t.info.forEach(x=>{ if(!live.collected.includes(x)) live.collected.push(x); });
+  setInference(t.conf.cat, t.conf.p, "intent: "+CATS[t.conf.cat].label.toLowerCase()+" · "+t.conf.p+"% confident");
+  renderSlots();
+
+  ellieSays(t.reply, 850, ()=>{
+    live.turn++;
+    live.transcript.push({who:"ellie", t:t.reply});
+    if(live.turn >= live.scn.turns.length){
+      setTimeout(wrapUp, 1400);
+    } else {
+      renderChips();
+    }
+  });
+}
+
+function wrapUp(){
+  if(!live || live.done) return;
+  live.done = true;
+  clearInterval(live.timer);
+  renderChips();
+  sysMsg("Call ended · "+callDuration());
+  finishLiveCall();
+}
+
+function hangUp(){
+  if(!live) return;
+  if(live.done){ resetLive(); return; }
+  live.done = true; clearInterval(live.timer);
+  live.endedBy = "caller";
+  renderChips();
+  sysMsg("You ended the call · "+callDuration());
+  finishLiveCall();
+}
+
+function callDuration(){
+  if(!live) return "0:00";
+  const sec = Math.floor((new Date()-live.t0)/1000);
+  return Math.floor(sec/60)+" min "+(sec%60)+" s";
+}
+
+/* summary creation after a live call */
+function finishLiveCall(){
+  const s = live.scn, r = s.result;
+  const rule = rules[s.cat] || {mode:"message"};
+  const handledMap = {escalate:"escalated", message:"message", auto:"auto", decline:"declined", end:"ended"};
+  const handled = handledMap[rule.mode] || "message";
+  const priority = r.priority==="high" ? "high" : r.priority;
+
+  // transcript snapshot (live one + opening)
+  const transcript = [{who:"ellie", t:"Hello, you've reached Advik's AI assistant, Ellie. Advik can't come to the phone right now — how can I help?"}]
+    .concat(live.transcript)
+    .concat([{who:"sys", t:"Call ended · "+callDuration()+(handled==="escalated"?" · escalated as high priority":" · "+HANDLED[handled].label.toLowerCase())}]);
+
+  const call = {
+    id: nextId++, time:"Today · just now", caller:s.caller, number:s.number, org:s.org,
+    category:s.cat, priority:priority, handled:handled, newCall:true, isLive:true, dismissed:false,
+    oneLine:r.oneLine,
+    summary:{
+      intent:r.intent, key:r.key,
+      decisions:r.decisions.concat([handled==="escalated"?"Escalated with a priority notification to you":"Handled per your rule for "+CATS[s.cat].label+" calls"]),
+      actions:r.actions, followUp:r.followUp, next:r.next
+    },
+    transcript: transcript
+  };
+
+  calls.unshift(call);
+  live.callRef = call;
+
+  // show the summary card in-chat
+  setTimeout(()=>{
+    const chat = $("#chat"); if(!chat) return;
+    const card = document.createElement("div");
+    card.className = "call-summary";
+    card.innerHTML =
+      "<h4>Ellie's call summary</h4>"+
+      '<div class="cs-row"><div class="cs-k">Caller</div><div>'+esc(s.caller)+(s.org?" · "+esc(s.org):"")+'</div></div>'+
+      '<div class="cs-row"><div class="cs-k">Intent</div><div>'+esc(r.intent)+'</div></div>'+
+      '<div class="cs-row"><div class="cs-k">Priority</div><div>'+PRIOS[priority].label+' · '+CATS[s.cat].label+'</div></div>'+
+      (r.actions.length?'<div class="cs-row"><div class="cs-k">Action</div><div>'+esc(r.actions[0])+'</div></div>':"")+
+      '<div class="cs-row"><div class="cs-k">Handled</div><div>'+HANDLED[handled].label+'</div></div>'+
+      '<div class="cs-actions"><button class="btn btn--primary btn--sm" onclick="resetLive();switchView(\'calls\')">View in call log</button><button class="btn btn--sm" onclick="resetLive()">New call</button></div>';
+    chat.appendChild(card);
+    chat.scrollTop = chat.scrollHeight;
+  }, 600);
+
+  setInference(s.cat, 97, "classified · logged · summary ready");
+  renderSlots();
+
+  renderOverview(); renderFilters(); renderCallList();
+
+  if(handled==="escalated" || priority==="high"){
+    setTimeout(()=>{
+      toast("Important call from "+s.caller+(s.org?" at "+s.org:""), "Reason: "+r.oneLine+" Action required: "+r.next+" Priority: High.", true);
+    }, 900);
+  } else {
+    setTimeout(()=>{
+      toast("Call handled — "+HANDLED[handled].label.toLowerCase(), s.caller+" · no interruption needed. Logged in your call history.");
+    }, 900);
+  }
+}
+
+function resetLive(){
+  live = null;
+  renderScenarioPicker();
+}
+
+/* inference panel */
+function setInference(cat, p, label){
+  $("#inferIntent").innerHTML = catBadge(cat)+'<span style="font-family:var(--font-mono);font-size:10.5px;color:var(--text-dim)">'+p+'% confident</span>';
+  const bar = $("#confBar"); if(bar) bar.style.width = p+"%";
+  const l = $("#confLabel"); if(l) l.textContent = label;
+}
+function renderSlots(){
+  const el = $("#inferSlots"); if(!el || !live) return;
+  el.innerHTML = live.collected.length? live.collected.map((x,i)=>'<span class="slot-chip" style="animation-delay:'+(i*0.05)+'s">'+esc(x)+'</span>').join("")
+    : '<span style="font-size:12px;color:var(--text-faint)">Nothing yet — listening to the caller…</span>';
+}
+function renderLiveRuleNote(){
+  const el = $("#ruleNote"); if(!el) return;
+  if(live){
+    const cat = live.cat, mode = rules[cat].mode;
+    el.innerHTML = "Following your rule for <b>"+CATS[cat].label+"</b> calls: <b>"+ruleOptions[mode][0]+"</b> — "+ruleOptions[mode][1]+". You can change this under Assistant rules.";
+  } else {
+    el.innerHTML = "Ellie picks its behaviour from your <b>Assistant rules</b> — change them any time and the next call follows them.";
+  }
+}
+
+/* chat rendering */
+function ellieSays(text, delay, cb){
+  const chat = $("#chat"); if(!chat) return;
+  const typing = document.createElement("div");
+  typing.className = "typing";
+  typing.innerHTML = "<i></i><i></i><i></i>";
+  chat.appendChild(typing);
+  chat.scrollTop = chat.scrollHeight;
+  setTimeout(()=>{
+    typing.remove();
+    const m = document.createElement("div");
+    m.className = "msg msg--ellie";
+    m.innerHTML = '<div class="msg__who">Ellie</div>'+esc(text);
+    chat.appendChild(m);
+    chat.scrollTop = chat.scrollHeight;
+    if(cb) cb();
+  }, delay||700);
+}
+function callerSays(text){
+  const chat = $("#chat"); if(!chat) return;
+  const m = document.createElement("div");
+  m.className = "msg msg--caller";
+  m.textContent = text;
+  chat.appendChild(m);
+  chat.scrollTop = chat.scrollHeight;
+}
+function sysMsg(text){
+  const chat = $("#chat"); if(!chat) return;
+  const m = document.createElement("div");
+  m.className = "msg msg--sys";
+  m.textContent = text;
+  chat.appendChild(m);
+  chat.scrollTop = chat.scrollHeight;
+}
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && document.activeElement && document.activeElement.id==="callerInput") sendCaller();
+  if(e.key==="Escape") closeModal();
+});
+
+/* ---------- navigation ---------- */
+function switchView(name){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  $("#view-"+name).classList.add("active");
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
+  window.scrollTo({top:0});
+}
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+
+/* ---------- boot ---------- */
+renderOverview();
+renderFilters();
+renderCallList();
+renderRules();
+renderScenarioPicker();
+renderLiveRuleNote();
+</script>
+</body>
+</html>
