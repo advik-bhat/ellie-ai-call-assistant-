@@ -142,7 +142,6 @@ The prototype includes several realistic scenarios:
 - HTML
 - CSS
 - JavaScript
-- Netlify
 
 The current prototype is browser-based and self-contained.
 
